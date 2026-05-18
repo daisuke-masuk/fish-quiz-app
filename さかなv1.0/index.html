@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海の魚クイズアプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+
+        <section id="login-screen" class="screen active">
+            <div class="card">
+                <h1 class="app-title">海の魚クイズ</h1>
+                <p class="app-subtitle">ユーザーIDを入力して始めてください</p>
+                
+                <div class="form-group">
+                    <input type="text" id="login-id-input" placeholder="ユーザーIDを入力（例: user123）" autocomplete="off">
+                    <p id="login-error" class="error-message"></p>
+                </div>
+                
+                <button id="login-btn" class="btn btn-primary">ログイン / 新規登録</button>
+            </div>
+        </section>
+
+        <section id="setup-screen" class="screen">
+            <div class="header-bar">
+                <span class="user-display">ID: <strong id="current-user-id">---</strong></span>
+                <div class="nav-buttons">
+                    <button class="btn btn-sm" id="nav-fav-btn">⭐ お気に入り</button>
+                    <button class="btn btn-sm" id="nav-wrong-btn">❌ 間違えた魚</button>
+                    <button class="btn btn-sm" id="nav-correct-btn">📁 正解リスト</button>
+                </div>
+            </div>
+
+            <div class="card card-margin dashboard-card">
+                <h3>📊 あなたの学習状況</h3>
+                <div class="dashboard-grid">
+                    <div class="db-item">
+                        <span class="db-label">図鑑の総数</span>
+                        <span class="db-value" id="db-total-count">0</span>
+                    </div>
+                    <div class="db-item">
+                        <span class="db-label">正解済(習得)</span>
+                        <span class="db-value" id="db-correct-count">0</span>
+                    </div>
+                    <div class="db-item">
+                        <span class="db-label">未習得の魚</span>
+                        <span class="db-value" id="db-remaining-count">0</span>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="db-progress-bar"></div>
+                </div>
+                <p class="progress-text">全体の <strong id="db-progress-percent">0%</strong> をマスターしました！</p>
+                
+                <h4 class="sub-section-title">📜 過去のチャレンジログ (最新5件)</h4>
+                <div id="db-log-container" class="log-list-container">
+                    <p class="empty-log-text">まだチャレンジ履歴がありません。</p>
+                </div>
+
+                <button id="open-db-detail-btn" class="btn btn-sm btn-outline" style="margin-top: 12px; width: 100%;">📊 詳細な統計・履歴を見る</button>
+            </div>
+
+            <div class="card card-margin">
+                <h3>1. クイズの形式</h3>
+                <div class="radio-tile-group">
+                    <label class="radio-tile-label">
+                        <input type="radio" name="quiz-type" value="photo-to-name" checked>
+                        <div class="radio-tile">
+                            <span>📷 写真 ➔ 名前</span>
+                        </div>
+                    </label>
+                    <label class="radio-tile-label">
+                        <input type="radio" name="quiz-type" value="name-to-photo">
+                        <div class="radio-tile">
+                            <span>📝 名前 ➔ 写真</span>
+                        </div>
+                    </label>
+                </div>
+
+                <h3>2. 出題設定</h3>
+                <div class="setup-row">
+                    <div class="select-wrapper">
+                        <label class="select-label">選択肢の数</label>
+                        <select id="choices-count">
+                            <option value="2">2択</option>
+                            <option value="3">3択</option>
+                            <option value="4" selected>4択</option>
+                            <option value="5">5択</option>
+                        </select>
+                    </div>
+                    <div class="select-wrapper">
+                        <label class="select-label">問題数</label>
+                        <select id="questions-count-select">
+                            <option value="5">5問</option>
+                            <option value="10" selected>10問</option>
+                            <option value="20">20問</option>
+                            <option value="all">全問出題</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-margin">
+                <h3>3. 人気度での絞り込み（複数選択可）</h3>
+                <div class="popularity-filter-group">
+                    <label class="pop-check-item"><input type="checkbox" name="popularity-filter" value="1">★1</label>
+                    <label class="pop-check-item"><input type="checkbox" name="popularity-filter" value="2">★2</label>
+                    <label class="pop-check-item"><input type="checkbox" name="popularity-filter" value="3">★3</label>
+                    <label class="pop-check-item"><input type="checkbox" name="popularity-filter" value="4">★4</label>
+                    <label class="pop-check-item"><input type="checkbox" name="popularity-filter" value="5">★5</label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="category-header-row">
+                    <h3>4. 出題する魚の種類</h3>
+                    <label class="switch-label">
+                        <input type="checkbox" id="unanswered-only-switch"> 未正解のみ出題
+                    </label>
+                </div>
+                
+                <div class="sort-tabs">
+                    <button id="sort-count-btn" class="tab-btn active">📊 収録数順</button>
+                    <button id="sort-pop-btn" class="tab-btn">🔥 人気順</button>
+                    <button id="sort-abc-btn" class="tab-btn">🔤 あいうえお順</button>
+                </div>
+
+                <div class="selection-control">
+                    <button id="select-all-btn" class="btn btn-outline btn-sm">すべて選択</button>
+                    <button id="deselect-all-btn" class="btn btn-outline btn-sm">すべて解除</button>
+                </div>
+
+                <div id="category-list-container" class="category-grid"></div>
+            </div>
+
+            <div class="footer-action">
+                <button id="start-quiz-btn" class="btn btn-primary btn-large">クイズをスタートする</button>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="nav-not-learn-btn" class="link-btn-muted">
+                        🙈 今後登場させない（覚えない）リストを見る
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <span id="quiz-progress">第 1 問 / 10問</span>
+                <span id="quiz-timer" class="timer-display">⏱️ 00:00</span>
+                <button id="quiz-quit-btn" class="btn btn-sm btn-outline">中断</button>
+            </div>
+
+            <div id="quiz-question-container" class="card card-margin">
+                <div id="question-image-wrapper">
+                    <img id="question-image" src="" alt="問題の魚">
+                </div>
+                <div id="question-text-wrapper" style="display: none;">
+                    <p class="question-label">この魚の名前は？</p>
+                    <h2 id="question-fish-name">魚の名前</h2>
+                </div>
+            </div>
+
+            <div id="quiz-choices-container" class="choices-grid"></div>
+
+            <div id="quiz-feedback-container" class="card feedback-card" style="display: none;">
+                <div class="feedback-result">
+                    <span id="feedback-icon">⭕</span>
+                    <h3 id="feedback-text">正解！</h3>
+                </div>
+                <div class="feedback-detail">
+                    <h4 id="feedback-fish-name">魚の名前</h4>
+                    <p id="feedback-fish-english">英名</p>
+                    <p id="feedback-fish-desc">解説テキスト</p>
+                </div>
+                <button id="next-question-btn" class="btn btn-primary">次の問題へ</button>
+            </div>
+        </section>
+
+        <section id="result-screen" class="screen">
+            <div class="card card-margin text-center">
+                <h2 class="result-title">クイズ結果</h2>
+                <div class="score-circle">
+                    <span id="result-score-percent">0%</span>
+                </div>
+                <p id="result-score-text">0問中 0問 正解！</p>
+                
+                <div class="time-score-box">
+                    <div class="ts-item">
+                        <span class="ts-label">⏱️ かかった時間</span>
+                        <span class="ts-value" id="result-time-elapsed">0秒</span>
+                    </div>
+                    <div class="ts-item">
+                        <span class="ts-label">⚡ 10秒あたりの正解数</span>
+                        <span class="ts-value" id="result-speed-rate">0.00問</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-title">出題された魚の一覧</h3>
+            <div id="result-list-container" class="result-list"></div>
+
+            <div class="footer-action">
+                <button id="back-to-setup-btn" class="btn btn-primary">設定画面に戻る</button>
+            </div>
+        </section>
+
+        <section id="list-screen" class="screen">
+            <div class="list-header">
+                <button id="back-from-list-btn" class="btn btn-sm btn-outline">⬅ 戻る</button>
+                <h2 id="list-screen-title">一覧ページ</h2>
+                <div style="width: 58px;"></div>
+            </div>
+
+            <div id="fish-list-container" class="fish-card-list"></div>
+        </section>
+
+        <section id="db-detail-screen" class="screen">
+            <div class="list-header">
+                <button id="back-from-db-detail-btn" class="btn btn-sm btn-outline">⬅ 戻る</button>
+                <h2>📊 統計・履歴の解析</h2>
+                <div style="width: 58px;"></div>
+            </div>
+
+            <div class="card card-margin">
+                <h3 class="detail-section-title">🔥 人気度別の習得状況</h3>
+                <div id="detail-pop-stats-container" class="stat-bars-list"></div>
+            </div>
+
+            <div class="card card-margin">
+                <h3 class="detail-section-title">🐟 魚の種類（分類）別習得状況</h3>
+                <div id="detail-cat-stats-container" class="stat-bars-list scrollable-stat-box"></div>
+            </div>
+
+            <div class="card card-margin">
+                <h3 class="detail-section-title">📋 チャレンジログの全詳細</h3>
+                <div id="detail-log-full-container" class="detailed-log-scroll-box">
+                    <p class="empty-log-text">履歴がありません。</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+[
+  {
+    "name": "ハゼ科",
+    "count": 204,
+    "count_rank": 0,
+    "pop_rank": 14
+  },
+  {
+    "name": "スズメダイ科",
+    "count": 148,
+    "count_rank": 1,
+    "pop_rank": 22
+  },
+  {
+    "name": "ハタ科",
+    "count": 95,
+    "count_rank": 2,
+    "pop_rank": 28
+  },
+  {
+    "name": "ベラ科",
+    "count": 90,
+    "count_rank": 3,
+    "pop_rank": 40
+  },
+  {
+    "name": "チョウチョウウオ科",
+    "count": 66,
+    "count_rank": 4,
+    "pop_rank": 21
+  },
+  {
+    "name": "テンジクダイ科",
+    "count": 44,
+    "count_rank": 5,
+    "pop_rank": 61
+  },
+  {
+    "name": "キンチャクダイ科",
+    "count": 39,
+    "count_rank": 6,
+    "pop_rank": 52
+  },
+  {
+    "name": "イソギンポ科",
+    "count": 38,
+    "count_rank": 7,
+    "pop_rank": 60
+  },
+  {
+    "name": "アジ科",
+    "count": 34,
+    "count_rank": 8,
+    "pop_rank": 2
+  },
+  {
+    "name": "ニザダイ科",
+    "count": 28,
+    "count_rank": 9,
+    "pop_rank": 54
+  },
+  {
+    "name": "イサキ科",
+    "count": 25,
+    "count_rank": 10,
+    "pop_rank": 24
+  },
+  {
+    "name": "ブダイ科",
+    "count": 23,
+    "count_rank": 11,
+    "pop_rank": 39
+  },
+  {
+    "name": "フサカサゴ科",
+    "count": 23,
+    "count_rank": 12,
+    "pop_rank": 32
+  },
+  {
+    "name": "ウツボ科",
+    "count": 20,
+    "count_rank": 13,
+    "pop_rank": 15
+  },
+  {
+    "name": "ヨウジウオ科",
+    "count": 20,
+    "count_rank": 14,
+    "pop_rank": 37
+  },
+  {
+    "name": "イットウダイ科",
+    "count": 19,
+    "count_rank": 15,
+    "pop_rank": 63
+  },
+  {
+    "name": "フエダイ科",
+    "count": 18,
+    "count_rank": 16,
+    "pop_rank": 43
+  },
+  {
+    "name": "エイ科",
+    "count": 15,
+    "count_rank": 17,
+    "pop_rank": 11
+  },
+  {
+    "name": "フグ科",
+    "count": 15,
+    "count_rank": 18,
+    "pop_rank": 3
+  },
+  {
+    "name": "ネズッポ科",
+    "count": 15,
+    "count_rank": 19,
+    "pop_rank": 69
+  },
+  {
+    "name": "サメ",
+    "count": 15,
+    "count_rank": 20,
+    "pop_rank": 6
+  },
+  {
+    "name": "ヒメジ科",
+    "count": 14,
+    "count_rank": 21,
+    "pop_rank": 75
+  },
+  {
+    "name": "アイゴ科",
+    "count": 13,
+    "count_rank": 22,
+    "pop_rank": 41
+  },
+  {
+    "name": "フエフキダイ科",
+    "count": 13,
+    "count_rank": 23,
+    "pop_rank": 44
+  },
+  {
+    "name": "カワハギ科",
+    "count": 13,
+    "count_rank": 24,
+    "pop_rank": 12
+  },
+  {
+    "name": "モンガラカワハギ科",
+    "count": 13,
+    "count_rank": 25,
+    "pop_rank": 33
+  },
+  {
+    "name": "タカサゴ科",
+    "count": 13,
+    "count_rank": 26,
+    "pop_rank": 56
+  },
+  {
+    "name": "イトヨリダイ科",
+    "count": 12,
+    "count_rank": 27,
+    "pop_rank": 45
+  },
+  {
+    "name": "トラギス科",
+    "count": 12,
+    "count_rank": 28,
+    "pop_rank": 62
+  },
+  {
+    "name": "ゴンベ科",
+    "count": 11,
+    "count_rank": 29,
+    "pop_rank": 74
+  },
+  {
+    "name": "クロユリハゼ科",
+    "count": 11,
+    "count_rank": 30,
+    "pop_rank": 82
+  },
+  {
+    "name": "エソ科",
+    "count": 9,
+    "count_rank": 31,
+    "pop_rank": 48
+  },
+  {
+    "name": "ヘビギンポ科",
+    "count": 9,
+    "count_rank": 32,
+    "pop_rank": 89
+  },
+  {
+    "name": "カエルアンコウ科",
+    "count": 8,
+    "count_rank": 33,
+    "pop_rank": 23
+  },
+  {
+    "name": "カマス科",
+    "count": 8,
+    "count_rank": 34,
+    "pop_rank": 17
+  },
+  {
+    "name": "ダルマガレイ科",
+    "count": 7,
+    "count_rank": 35,
+    "pop_rank": 70
+  },
+  {
+    "name": "イスズミ科",
+    "count": 7,
+    "count_rank": 36,
+    "pop_rank": 64
+  },
+  {
+    "name": "有鱗目科",
+    "count": 7,
+    "count_rank": 37,
+    "pop_rank": 53
+  },
+  {
+    "name": "ハコフグ科",
+    "count": 6,
+    "count_rank": 38,
+    "pop_rank": 20
+  },
+  {
+    "name": "ハタンポ科",
+    "count": 6,
+    "count_rank": 39,
+    "pop_rank": 97
+  },
+  {
+    "name": "コケギンポ科",
+    "count": 6,
+    "count_rank": 40,
+    "pop_rank": 90
+  },
+  {
+    "name": "アナゴ科",
+    "count": 5,
+    "count_rank": 41,
+    "pop_rank": 8
+  },
+  {
+    "name": "ハリセンボン科",
+    "count": 5,
+    "count_rank": 42,
+    "pop_rank": 19
+  },
+  {
+    "name": "キツネアマダイ科",
+    "count": 5,
+    "count_rank": 43,
+    "pop_rank": 92
+  },
+  {
+    "name": "コチ科",
+    "count": 5,
+    "count_rank": 44,
+    "pop_rank": 26
+  },
+  {
+    "name": "メギス科",
+    "count": 5,
+    "count_rank": 45,
+    "pop_rank": 96
+  },
+  {
+    "name": "ニシン科",
+    "count": 5,
+    "count_rank": 46,
+    "pop_rank": 10
+  },
+  {
+    "name": "サバ科",
+    "count": 5,
+    "count_rank": 47,
+    "pop_rank": 1
+  },
+  {
+    "name": "アゴアマダイ科",
+    "count": 4,
+    "count_rank": 48,
+    "pop_rank": 86
+  },
+  {
+    "name": "カジカ科",
+    "count": 4,
+    "count_rank": 49,
+    "pop_rank": 31
+  },
+  {
+    "name": "キントキダイ科",
+    "count": 4,
+    "count_rank": 50,
+    "pop_rank": 49
+  },
+  {
+    "name": "マンジュウダイ科",
+    "count": 4,
+    "count_rank": 51,
+    "pop_rank": 95
+  },
+  {
+    "name": "ウバウオ科",
+    "count": 4,
+    "count_rank": 52,
+    "pop_rank": 76
+  },
+  {
+    "name": "ハオコゼ科",
+    "count": 3,
+    "count_rank": 53,
+    "pop_rank": 55
+  },
+  {
+    "name": "クジラ偶蹄目",
+    "count": 3,
+    "count_rank": 54,
+    "pop_rank": 5
+  },
+  {
+    "name": "クロサギ科",
+    "count": 3,
+    "count_rank": 55,
+    "pop_rank": 81
+  },
+  {
+    "name": "ニベ科",
+    "count": 3,
+    "count_rank": 56,
+    "pop_rank": 47
+  },
+  {
+    "name": "タイ科",
+    "count": 3,
+    "count_rank": 57,
+    "pop_rank": 0
+  },
+  {
+    "name": "ウミヘビ科",
+    "count": 3,
+    "count_rank": 58,
+    "pop_rank": 30
+  },
+  {
+    "name": "ベラギンポ科",
+    "count": 2,
+    "count_rank": 59,
+    "pop_rank": 88
+  },
+  {
+    "name": "ボラ科",
+    "count": 2,
+    "count_rank": 60,
+    "pop_rank": 13
+  },
+  {
+    "name": "ダツ科",
+    "count": 2,
+    "count_rank": 61,
+    "pop_rank": 42
+  },
+  {
+    "name": "ゴンズイ科",
+    "count": 2,
+    "count_rank": 62,
+    "pop_rank": 36
+  },
+  {
+    "name": "グランマ科",
+    "count": 2,
+    "count_rank": 63,
+    "pop_rank": 99
+  },
+  {
+    "name": "ヘコアユ科",
+    "count": 2,
+    "count_rank": 64,
+    "pop_rank": 38
+  },
+  {
+    "name": "ヘラヤガラ科",
+    "count": 2,
+    "count_rank": 65,
+    "pop_rank": 66
+  },
+  {
+    "name": "ホウボウ科",
+    "count": 2,
+    "count_rank": 66,
+    "pop_rank": 27
+  },
+  {
+    "name": "イシダイ科",
+    "count": 2,
+    "count_rank": 67,
+    "pop_rank": 25
+  },
+  {
+    "name": "カメ目",
+    "count": 2,
+    "count_rank": 68,
+    "pop_rank": 4
+  },
+  {
+    "name": "カミソリウオ科",
+    "count": 2,
+    "count_rank": 69,
+    "pop_rank": 67
+  },
+  {
+    "name": "コバンザメ科",
+    "count": 2,
+    "count_rank": 70,
+    "pop_rank": 18
+  },
+  {
+    "name": "labrisomus科",
+    "count": 2,
+    "count_rank": 71,
+    "pop_rank": 100
+  },
+  {
+    "name": "メジナ科",
+    "count": 2,
+    "count_rank": 72,
+    "pop_rank": 29
+  },
+  {
+    "name": "タカノホダイ科",
+    "count": 2,
+    "count_rank": 73,
+    "pop_rank": 83
+  },
+  {
+    "name": "ウミタナゴ科",
+    "count": 2,
+    "count_rank": 74,
+    "pop_rank": 50
+  },
+  {
+    "name": "アサヒギンポ科",
+    "count": 1,
+    "count_rank": 75,
+    "pop_rank": 87
+  },
+  {
+    "name": "アシロ科",
+    "count": 1,
+    "count_rank": 76,
+    "pop_rank": 72
+  },
+  {
+    "name": "ダンゴウオ科",
+    "count": 1,
+    "count_rank": 77,
+    "pop_rank": 34
+  },
+  {
+    "name": "ガマアンコウ科",
+    "count": 1,
+    "count_rank": 78,
+    "pop_rank": 73
+  },
+  {
+    "name": "ヒラメ科",
+    "count": 1,
+    "count_rank": 79,
+    "pop_rank": 7
+  },
+  {
+    "name": "ホタテエソ科",
+    "count": 1,
+    "count_rank": 80,
+    "pop_rank": 93
+  },
+  {
+    "name": "イボオコゼ科",
+    "count": 1,
+    "count_rank": 81,
+    "pop_rank": 91
+  },
+  {
+    "name": "カゴカキダイ科",
+    "count": 1,
+    "count_rank": 82,
+    "pop_rank": 59
+  },
+  {
+    "name": "カライワシ科",
+    "count": 1,
+    "count_rank": 83,
+    "pop_rank": 78
+  },
+  {
+    "name": "カタクチイワシ科",
+    "count": 1,
+    "count_rank": 84,
+    "pop_rank": 9
+  },
+  {
+    "name": "カワビシャ科",
+    "count": 1,
+    "count_rank": 85,
+    "pop_rank": 98
+  },
+  {
+    "name": "キス科",
+    "count": 1,
+    "count_rank": 86,
+    "pop_rank": 16
+  },
+  {
+    "name": "マツカサウオ科",
+    "count": 1,
+    "count_rank": 87,
+    "pop_rank": 58
+  },
+  {
+    "name": "ムツ科",
+    "count": 1,
+    "count_rank": 88,
+    "pop_rank": 46
+  },
+  {
+    "name": "オニオコゼ科",
+    "count": 1,
+    "count_rank": 89,
+    "pop_rank": 35
+  },
+  {
+    "name": "オオメワラスボ科",
+    "count": 1,
+    "count_rank": 90,
+    "pop_rank": 94
+  },
+  {
+    "name": "ササウシノシタ科",
+    "count": 1,
+    "count_rank": 91,
+    "pop_rank": 71
+  },
+  {
+    "name": "セミホウボウ科",
+    "count": 1,
+    "count_rank": 92,
+    "pop_rank": 68
+  },
+  {
+    "name": "ソトイワシ科",
+    "count": 1,
+    "count_rank": 93,
+    "pop_rank": 79
+  },
+  {
+    "name": "スギ科",
+    "count": 1,
+    "count_rank": 94,
+    "pop_rank": 80
+  },
+  {
+    "name": "タカベ科",
+    "count": 1,
+    "count_rank": 95,
+    "pop_rank": 57
+  },
+  {
+    "name": "タナバタウオ科",
+    "count": 1,
+    "count_rank": 96,
+    "pop_rank": 84
+  },
+  {
+    "name": "トウゴロウイワシ科",
+    "count": 1,
+    "count_rank": 97,
+    "pop_rank": 77
+  },
+  {
+    "name": "ツノダシ科",
+    "count": 1,
+    "count_rank": 98,
+    "pop_rank": 51
+  },
+  {
+    "name": "ウミテング科",
+    "count": 1,
+    "count_rank": 99,
+    "pop_rank": 65
+  },
+  {
+    "name": "ユゴイ科",
+    "count": 1,
+    "count_rank": 100,
+    "pop_rank": 85
+  }
+]
