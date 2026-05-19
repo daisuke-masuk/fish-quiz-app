@@ -1,13 +1,13 @@
 // --- アプリのグローバル状態（ステート） ---
-let fishMaster = [];       // 魚マスタ
-let categoryMaster = [];   // 分類マスタ
+let fishMaster = [];       // 魚マスタ（これ一本に統合）
+let categoryMaster = [];   // JS側で自動生成する分類マスタ
 
-let currentUser = null;    // 現在ログイン中のユーザーID
-let userFavorites = [];    // お気に入り魚のIDリスト
-let userWrongs = [];       // 間違えた魚のIDリスト
+let currentUser = null;
+let userFavorites = [];    // お気に入り
+let userWrongs = [];       // 間違えた魚
 let userCorrects = [];     // 正解リスト
-let userNotToLearn = [];   // 覚えないリスト
-let userLogs = [];         // 過去のクイズ履歴ログリスト
+let userNotToLearn = [];   // 覚えないリスト（システム全体から透明化）
+let userLogs = [];         // チャレンジログ
 
 // クイズ実行用データ
 let currentQuizPool = [];  
@@ -20,21 +20,19 @@ let selectedChoicesCount = 4;
 // タイマー制御用
 let timerInterval = null;
 let quizSecondsElapsed = 0;
-
-// ログ保存用の開始設定記憶バッファ
 let currentQuizSettings = {};
 
-// --- 1. アプリ初期化 ---
+// --- 1. アプリ初期化 ＆ データロード ---
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const [fishRes, catRes] = await Promise.all([
-            fetch('fish_master.json'),
-            fetch('category_master.json')
-        ]);
-        fishMaster = await fishRes.json();
-        categoryMaster = await catRes.json();
+        // ★仕様変更：外部の分類ファイルを廃止し、fish_masterのみを読み込む
+        const res = await fetch('fish_master.json');
+        fishMaster = await res.json();
 
         setupEventListeners();
+        
+        // ログイン前はダミーでカテゴリを構築して描画しておく
+        generateCategoryMaster();
         renderCategories("count_rank", true); 
     } catch (error) {
         console.error("データの読み込みに失敗しました:", error);
@@ -94,21 +92,22 @@ function handleLogin() {
     }
 
     let users = JSON.parse(localStorage.getItem("fish_quiz_users")) || {};
-    
     if (!users[inputId]) {
         users[inputId] = { favorites: [], wrongs: [], corrects: [], notToLearn: [], logs: [] };
         localStorage.setItem("fish_quiz_users", JSON.stringify(users));
     }
 
     currentUser = inputId;
-    userFavorites = users[currentUser].favorites || [];
-    userWrongs = users[currentUser].wrongs || [];
-    userCorrects = users[currentUser].corrects || [];      
-    userNotToLearn = users[currentUser].notToLearn || [];  
-    userLogs = users[currentUser].logs || [];  
+    userFavorites = users[inputId].favorites || [];
+    userWrongs = users[inputId].wrongs || [];
+    userCorrects = users[inputId].corrects || [];      
+    userNotToLearn = users[inputId].notToLearn || [];  
+    userLogs = users[inputId].logs || [];  
 
     document.getElementById("current-user-id").textContent = currentUser;
     
+    // ログイン完了後、マスタデータをユーザーの「覚えないリスト」を除外した状態で再構築
+    generateCategoryMaster();
     clearFilters();
     updateDashboard();
     navigateTo("setup-screen");
@@ -126,20 +125,50 @@ function updateStorage() {
         };
         localStorage.setItem("fish_quiz_users", JSON.stringify(users));
     }
+    
+    generateCategoryMaster(); // 覚えないリストが変動した可能性があるため再構築
     updateDashboard(); 
+}
+
+// ★新規追加：fish_master.jsonから動的にカテゴリマスタを生成する
+function generateCategoryMaster() {
+    const catMap = new Map();
+    fishMaster.forEach(f => {
+        // 「覚えないリスト」の魚はマスタ集計から完全除外
+        if (userNotToLearn.includes(f.id)) return;
+
+        if (!catMap.has(f.category)) {
+            catMap.set(f.category, { name: f.category, count: 0, popScore: 0 });
+        }
+        catMap.get(f.category).count++;
+        catMap.get(f.category).popScore += (f.popularity || 0);
+    });
+
+    categoryMaster = Array.from(catMap.values()).filter(c => c.count > 0);
+    
+    // 収録数順ランク
+    categoryMaster.sort((a,b) => b.count - a.count);
+    categoryMaster.forEach((c, i) => c.count_rank = i);
+    // 人気順ランク（科ごとの星の合計）
+    categoryMaster.sort((a,b) => b.popScore - a.popScore);
+    categoryMaster.forEach((c, i) => c.pop_rank = i);
 }
 
 function updateDashboard() {
     if (!currentUser) return;
-    const total = fishMaster.length;
-    const favCount = userFavorites.length;
-    const wrongCount = userWrongs.length;
-    const correctCount = userCorrects.length;
+    
+    // 分母となる総数は、fishMaster全体から「覚えない」を除外した数
+    const total = fishMaster.filter(f => !userNotToLearn.includes(f.id)).length;
+    
+    // 「覚えない」に入っている魚は正解数や間違えた数からも除外して計算
+    const favCount = userFavorites.filter(id => !userNotToLearn.includes(id)).length;
+    const wrongCount = userWrongs.filter(id => !userNotToLearn.includes(id)).length;
+    const correctCount = userCorrects.filter(id => !userNotToLearn.includes(id)).length;
     const notLearnCount = userNotToLearn.length;
 
     document.getElementById("db-total-count").textContent = total;
     document.getElementById("db-correct-count").textContent = correctCount;
-    document.getElementById("db-remaining-count").textContent = Math.max(0, total - correctCount - notLearnCount);
+    document.getElementById("db-remaining-count").textContent = Math.max(0, total - correctCount);
 
     const percent = total > 0 ? Math.round((correctCount / total) * 100) : 0;
     document.getElementById("db-progress-percent").textContent = `${percent}%`;
@@ -148,7 +177,6 @@ function updateDashboard() {
     document.getElementById("nav-fav-btn").innerHTML = `⭐ お気に入り <small>(${favCount})</small>`;
     document.getElementById("nav-wrong-btn").innerHTML = `❌ 間違えた魚 <small>(${wrongCount})</small>`;
     document.getElementById("nav-correct-btn").innerHTML = `📁 正解リスト <small>(${correctCount})</small>`;
-    document.getElementById("nav-not-learn-btn").innerHTML = `🙈 今後登場させない（覚えない）リストを見る <small>(${notLearnCount})</small>`;
 
     const logContainer = document.getElementById("db-log-container");
     if (userLogs.length === 0) {
@@ -182,12 +210,10 @@ function renderCategories(sortKey, forceReset = false) {
     else if (sortKey === "pop_rank") { sortedCategories.sort((a, b) => a.pop_rank - b.pop_rank); } 
     else if (sortKey === "abc") { sortedCategories.sort((a, b) => a.name.localeCompare(b.name, 'ja')); }
 
-    const checkedValues = forceReset ? new Set() : new Set(
-        Array.from(document.querySelectorAll("input[name='category']:checked")).map(el => el.value)
-    );
+    const checkedValues = forceReset ? new Set() : new Set(Array.from(document.querySelectorAll("input[name='category']:checked")).map(el => el.value));
 
-    const favCount = userFavorites.length;
-    const wrongCount = userWrongs.length;
+    const favCount = userFavorites.filter(id => !userNotToLearn.includes(id)).length;
+    const wrongCount = userWrongs.filter(id => !userNotToLearn.includes(id)).length;
 
     let html = `
         <label class="checkbox-item special-category">
@@ -213,15 +239,12 @@ function renderCategories(sortKey, forceReset = false) {
     container.innerHTML = html;
 }
 
-// --- 5. クイズ生成アルゴリズム ---
+// --- 5. クイズ生成アルゴリズム（HARDモード搭載） ---
 function startQuiz() {
     const selectedPops = Array.from(document.querySelectorAll("input[name='popularity-filter']:checked")).map(el => parseInt(el.value));
     const selectedCats = Array.from(document.querySelectorAll("input[name='category']:checked")).map(el => el.value);
     
-    if (selectedCats.length === 0) {
-        alert("出題するお魚の種類を1つ以上選択してください。");
-        return;
-    }
+    if (selectedCats.length === 0) { alert("出題するお魚の種類を1つ以上選択してください。"); return; }
 
     let poolMap = new Map();
     selectedCats.forEach(cat => {
@@ -239,17 +262,16 @@ function startQuiz() {
         return true;
     });
 
-    if (currentQuizPool.length === 0) {
-        alert("条件に該当する、出題可能な魚がいません。");
-        return;
-    }
+    if (currentQuizPool.length === 0) { alert("条件に該当する、出題可能な魚がいません。"); return; }
 
     selectedChoicesCount = parseInt(document.getElementById("choices-count").value);
     const quizType = document.querySelector("input[name='quiz-type']:checked").value;
+    const difficulty = document.querySelector("input[name='quiz-difficulty']:checked").value;
     const reqQuestionsVal = document.getElementById("questions-count-select").value;
 
     currentQuizSettings = {
         type: quizType === "photo-to-name" ? "📷 写真➔名前" : "📝 名前➔写真",
+        difficulty: difficulty.toUpperCase(),
         categories: selectedCats.map(c => c === '__FAVORITES__' ? '⭐お気に入り' : c === '__WRONGS__' ? '❌間違えた' : c),
         popularity: selectedPops.length > 0 ? selectedPops.map(p => `★${p}`) : ["全対象"],
         unansweredOnly: isUnansweredOnly ? "ON" : "OFF"
@@ -262,13 +284,26 @@ function startQuiz() {
     const totalQuestions = Math.min(maxQuestions, shuffledPool.length);
     quizQuestions = shuffledPool.slice(0, totalQuestions);
 
+    // 誤答生成ロジック
     quizQuestions = quizQuestions.map(correctFish => {
-        let dummyPool = currentQuizPool.filter(f => f.id !== correctFish.id);
+        let dummyPool = [];
+        // ★新設：HARDモードなら、まず同じ分類の魚だけを抽出
+        if (difficulty === "hard") {
+            dummyPool = fishMaster.filter(f => f.category === correctFish.category && f.id !== correctFish.id && !userNotToLearn.includes(f.id));
+            dummyPool = shuffle(dummyPool);
+        } else {
+            // EASYなら設定されたプールから
+            dummyPool = currentQuizPool.filter(f => f.id !== correctFish.id);
+            dummyPool = shuffle(dummyPool);
+        }
+        
+        // 足りない場合は全体マスタからランダム補充
         if (dummyPool.length < selectedChoicesCount - 1) {
-            const extraDummies = fishMaster.filter(f => f.id !== correctFish.id && !dummyPool.some(d => d.id === f.id));
+            const extraDummies = fishMaster.filter(f => f.id !== correctFish.id && !userNotToLearn.includes(f.id) && !dummyPool.some(d => d.id === f.id));
             dummyPool = dummyPool.concat(shuffle(extraDummies));
         }
-        const finalDummies = shuffle(dummyPool).slice(0, selectedChoicesCount - 1);
+
+        const finalDummies = dummyPool.slice(0, selectedChoicesCount - 1);
         const choices = shuffle([correctFish, ...finalDummies]);
         const chosenCorrectImagePath = pickRandomImage(correctFish);
 
@@ -297,6 +332,7 @@ function renderQuestion() {
 
     document.getElementById("quiz-progress").textContent = `第 ${currentQuestionIdx + 1} 問 / ${quizQuestions.length}問`;
     document.getElementById("quiz-feedback-container").style.display = "none";
+    document.getElementById("feedback-wrong-choices-wrapper").style.display = "none";
     document.getElementById("next-question-btn").style.display = "none";
 
     const imgContainer = document.getElementById("question-image-wrapper");
@@ -311,13 +347,17 @@ function renderQuestion() {
         document.getElementById("question-image").src = q.correctImage;
         q.choices.forEach(c => {
             const btn = document.createElement("button"); btn.className = "btn btn-choice"; btn.textContent = c.fish.name;
+            btn.dataset.fishId = c.fish.id;
             btn.onclick = () => handleAnswer(c.fish, btn); choicesContainer.appendChild(btn);
         });
     } else {
         imgContainer.style.display = "none"; textContainer.style.display = "block";
         document.getElementById("question-fish-name").textContent = q.correct.name;
         q.choices.forEach(c => {
-            const btn = document.createElement("button"); btn.className = "btn btn-choice"; btn.innerHTML = `<img src="${c.imagePath}">`;
+            const btn = document.createElement("button"); btn.className = "btn btn-choice"; 
+            btn.innerHTML = `<img src="${c.imagePath}">`;
+            btn.dataset.fishId = c.fish.id;
+            btn.dataset.fishName = c.fish.name;
             btn.onclick = () => handleAnswer(c.fish, btn); choicesContainer.appendChild(btn);
         });
     }
@@ -326,10 +366,23 @@ function renderQuestion() {
 function handleAnswer(selectedChoice, clickedBtn) {
     clearInterval(timerInterval);
     const q = quizQuestions[currentQuestionIdx];
-    document.getElementById("quiz-choices-container").querySelectorAll(".btn-choice").forEach(b => b.disabled = true);
-
     const isCorrect = selectedChoice.id === q.correct.id;
     quizHistory.push({ fish: q.correct, isCorrect: isCorrect, shownImage: q.correctImage });
+
+    const choicesBtns = document.getElementById("quiz-choices-container").querySelectorAll(".btn-choice");
+    
+    // ★新設：ボタンの色付け＆名前バッジ付与ロジック
+    choicesBtns.forEach(btn => {
+        btn.disabled = true;
+        const fishId = btn.dataset.fishId;
+        if (fishId === q.correct.id) {
+            btn.classList.add("correct-border");
+            if (q.type === "name-to-photo") btn.innerHTML += `<div class="choice-overlay-badge">⭕ ${btn.dataset.fishName}</div>`;
+        } else {
+            btn.classList.add("incorrect-border");
+            if (q.type === "name-to-photo") btn.innerHTML += `<div class="choice-overlay-badge">${btn.dataset.fishName}</div>`;
+        }
+    });
 
     const fbContainer = document.getElementById("quiz-feedback-container");
     const fbIcon = document.getElementById("feedback-icon");
@@ -339,14 +392,59 @@ function handleAnswer(selectedChoice, clickedBtn) {
         currentScore++; fbContainer.className = "card feedback-card correct"; fbIcon.textContent = "⭕"; fbText.textContent = "正解！";
         if (!userCorrects.includes(q.correct.id)) { userCorrects.push(q.correct.id); updateStorage(); }
     } else {
-        fbContainer.className = "card feedback-card incorrect"; fbIcon.textContent = "❌"; fbText.textContent = `不正解！正解は「${q.correct.name}」です`;
+        fbContainer.className = "card feedback-card incorrect"; fbIcon.textContent = "❌"; fbText.textContent = "不正解...";
         if (!userWrongs.includes(q.correct.id)) { userWrongs.push(q.correct.id); updateStorage(); }
     }
 
+    // ★新設：解説文の改行対応
     document.getElementById("feedback-fish-name").textContent = q.correct.name;
     document.getElementById("feedback-fish-english").textContent = q.correct.english || "英名情報なし";
-    document.getElementById("feedback-fish-desc").textContent = q.correct.description || "解説はありません。";
-    fbContainer.style.display = "block"; document.getElementById("next-question-btn").style.display = "block";
+    document.getElementById("feedback-fish-desc").innerHTML = (q.correct.description || "解説はありません。").replace(/\n/g, '<br>');
+
+    // ★新設：フィードバック内アクションボタンのデータ紐付けと描画
+    setupFeedbackActionButtons(q.correct, isCorrect);
+
+    // ★新設：写真➔名前モードの誤答画像をミニ表示
+    if (q.type === "photo-to-name") {
+        const wrongWrapper = document.getElementById("feedback-wrong-choices-wrapper");
+        const wrongContainer = document.getElementById("feedback-wrong-choices-container");
+        const wrongs = q.choices.filter(c => c.fish.id !== q.correct.id);
+        wrongContainer.innerHTML = wrongs.map(w => `
+            <div class="wrong-mini-card">
+                <img src="${w.imagePath}">
+                <div class="wrong-mini-name">${w.fish.name}</div>
+            </div>
+        `).join("");
+        wrongWrapper.style.display = "block";
+    }
+
+    fbContainer.style.display = "block"; 
+    document.getElementById("next-question-btn").style.display = "block";
+}
+
+function setupFeedbackActionButtons(fish, isCorrect) {
+    const favBtn = document.getElementById("feedback-fav-btn");
+    const notLearnBtn = document.getElementById("feedback-not-learn-btn");
+    const confWrapper = document.getElementById("feedback-confidence-wrapper");
+    const confCheck = document.getElementById("feedback-confidence-check");
+
+    const isFav = userFavorites.includes(fish.id);
+    const isNotLearn = userNotToLearn.includes(fish.id);
+
+    favBtn.className = isFav ? "btn-fav active" : "btn-fav";
+    favBtn.textContent = isFav ? "★" : "☆";
+    favBtn.onclick = () => { toggleFavorite(fish.id, favBtn); };
+
+    notLearnBtn.className = isNotLearn ? "btn-not-learn active" : "btn-not-learn";
+    notLearnBtn.onclick = () => { toggleNotToLearn(fish.id, notLearnBtn); };
+
+    if (isCorrect) {
+        confWrapper.style.display = "inline-flex";
+        confCheck.checked = !userCorrects.includes(fish.id);
+        confCheck.onchange = () => { toggleConfidence(fish.id, confCheck); };
+    } else {
+        confWrapper.style.display = "none";
+    }
 }
 
 function handleNextQuestion() {
@@ -381,7 +479,7 @@ function showResult() {
         accuracy: `${percent}%`,
         time: `${seconds}秒`,
         rate: speedRate,
-        type: currentQuizSettings.type || "不明",
+        type: `${currentQuizSettings.type} [${currentQuizSettings.difficulty}]`,
         unansweredOnly: currentQuizSettings.unansweredOnly || "OFF",
         rangeScope: `【種類】${currentQuizSettings.categories.join('/')} \n【人気】${currentQuizSettings.popularity.join(',')}`
     };
@@ -411,6 +509,7 @@ function showResult() {
     }).join("");
 }
 
+// リストトグル関数群
 function toggleFavorite(fishId, btnElement) {
     const idx = userFavorites.indexOf(fishId);
     if (idx > -1) { userFavorites.splice(idx, 1); if (btnElement) { btnElement.classList.remove("active"); btnElement.textContent = "☆"; } } 
@@ -425,9 +524,20 @@ function toggleConfidence(fishId, checkboxElement) {
 }
 function toggleNotToLearn(fishId, btnElement) {
     const idx = userNotToLearn.indexOf(fishId);
-    const itemRow = document.getElementById(`result-item-${fishId}`);
-    if (idx > -1) { userNotToLearn.splice(idx, 1); btnElement.classList.remove("active"); if (itemRow) itemRow.classList.remove("muted-row"); } 
-    else { userNotToLearn.push(fishId); btnElement.classList.add("active"); if (itemRow) itemRow.classList.add("muted-row"); }
+    const itemRows = document.querySelectorAll(`#result-item-${fishId}`);
+    if (idx > -1) { 
+        userNotToLearn.splice(idx, 1); 
+        btnElement.classList.remove("active"); 
+        itemRows.forEach(row => row.classList.remove("muted-row"));
+    } else { 
+        userNotToLearn.push(fishId); 
+        btnElement.classList.add("active"); 
+        itemRows.forEach(row => row.classList.add("muted-row"));
+        
+        // 覚えないリストに入れたら、未正解リストなどからも消す
+        const wIdx = userWrongs.indexOf(fishId);
+        if(wIdx > -1) userWrongs.splice(wIdx, 1);
+    }
     updateStorage();
 }
 
@@ -439,8 +549,13 @@ function showListScreen(type) {
     let targetIds = type === "fav" ? userFavorites : type === "wrong" ? userWrongs : type === "correct" ? userCorrects : userNotToLearn;
     titleEl.textContent = type === "fav" ? "⭐ お気に入りの魚" : type === "wrong" ? "❌ 間違えた魚" : type === "correct" ? "📁 正解した魚のリスト" : "🙈 登場させないリスト";
 
+    // 覚えないリストページ以外は、透明化処理を施したあとの配列を使う
+    if(type !== "not_learn") {
+        targetIds = targetIds.filter(id => !userNotToLearn.includes(id));
+    }
+
     if (targetIds.length === 0) {
-        container.innerHTML = `<p class="text-center" style="padding:40px 0; color:#868e96;">データがありません。</p>`;
+        container.innerHTML = `<p class="empty-log-text" style="padding:40px 0;">データがありません。</p>`;
         navigateTo("list-screen");
         return;
     }
@@ -454,13 +569,13 @@ function showListScreen(type) {
         let actionButtons = "";
         if (type === "wrong") {
             actionButtons = `
-                <button class="btn btn-sm btn-success" onclick="removeWrong('${fish.id}', this)">✅ 覚えた！</button>
-                <button class="btn btn-sm" style="background-color: #6c757d; color: white;" onclick="addNotToLearnFromWrongList('${fish.id}', this)">🙈 覚えない</button>
+                <button class="btn btn-sm btn-success" onclick="removeWrong('${fish.id}', this)">✅ 覚えた</button>
+                <button class="btn btn-sm" style="background-color: #718096; color: white;" onclick="addNotToLearnFromWrongList('${fish.id}', this)">🙈 覚えない</button>
             `;
         } else if (type === "correct") {
-            actionButtons = `<button class="btn btn-sm btn-outline" style="color:#e63946; border-color:#e63946;" onclick="removeCorrect('${fish.id}', this)">🤔 忘れた...</button>`;
+            actionButtons = `<button class="btn btn-sm btn-outline" style="color:var(--error-color); border-color:var(--error-color);" onclick="removeCorrect('${fish.id}', this)">🤔 忘れた</button>`;
         } else if (type === "not_learn") {
-            actionButtons = `<button class="btn btn-sm btn-success" onclick="removeNotToLearn('${fish.id}', this)">✨ クイズに復活させる</button>`;
+            actionButtons = `<button class="btn btn-sm btn-success" onclick="removeNotToLearnFromList('${fish.id}', this)">✨ 復活させる</button>`;
         }
 
         return `
@@ -470,11 +585,11 @@ function showListScreen(type) {
                     <div class="fish-card-header">
                         <h3>${fish.name}</h3> <span class="fish-card-badge">${fish.category}</span>
                     </div>
-                    <p class="fish-card-english">${fish.english || '英名なし'}</p>
-                    <p class="fish-card-desc">${fish.description || '解説はありません。'}</p>
+                    <p class="fish-card-english">${fish.english || '英名なし'} / ★${fish.popularity || 0}</p>
+                    <p class="fish-card-desc">${(fish.description || '解説はありません。').replace(/\n/g, '<br>')}</p>
                     <div class="fish-card-actions">
                         ${actionButtons}
-                        <button class="btn btn-sm btn-fav-toggle ${isFav ? 'active' : ''}" onclick="handleListFavToggle('${fish.id}', this, '${type}')">${isFav ? '⭐ 解除' : '⭐ 保存'}</button>
+                        <button class="btn btn-sm btn-outline" style="border:none;" onclick="handleListFavToggle('${fish.id}', this, '${type}')">${isFav ? '⭐解除' : '☆保存'}</button>
                     </div>
                 </div>
             </div>
@@ -501,28 +616,28 @@ function removeCorrect(fishId, btnElement) {
     const idx = userCorrects.indexOf(fishId);
     if (idx > -1) { userCorrects.splice(idx, 1); updateStorage(); document.getElementById(`card-${fishId}`).remove(); checkListEmpty(); }
 }
-function removeNotToLearn(fishId, btnElement) {
+function removeNotToLearnFromList(fishId, btnElement) {
     const idx = userNotToLearn.indexOf(fishId);
     if (idx > -1) { userNotToLearn.splice(idx, 1); updateStorage(); document.getElementById(`card-${fishId}`).remove(); checkListEmpty(); }
 }
 function checkListEmpty() {
     const container = document.getElementById("fish-list-container");
-    if (container && container.children.length === 0) { container.innerHTML = `<p class="text-center" style="padding:40px 0; color:#868e96;">データがありません。</p>`; }
+    if (container && container.children.length === 0) { container.innerHTML = `<p class="empty-log-text" style="padding:40px 0;">データがありません。</p>`; }
 }
 function handleListFavToggle(fishId, btnElement, currentScreenType) {
     toggleFavorite(fishId, null);
     const isNowFav = userFavorites.includes(fishId);
     if (currentScreenType === "fav") { document.getElementById(`card-${fishId}`).remove(); checkListEmpty(); } 
-    else { btnElement.className = isNowFav ? "btn btn-sm btn-fav-toggle active" : "btn btn-sm btn-fav-toggle"; btnElement.textContent = isNowFav ? "⭐ 解除" : "⭐ 保存"; }
+    else { btnElement.textContent = isNowFav ? "⭐解除" : "☆保存"; }
 }
 
-// --- 6. ダッシュボード詳細画面の描画（★タイポバグ修正済） ---
+// --- 9. ダッシュボード詳細統計画面の描画 ---
 function showDashboardDetail() {
     if (!currentUser) return;
 
-    // 1. 人気度（★1〜★5）別の集計データを算出
     let popStats = { 1: {t:0, c:0}, 2: {t:0, c:0}, 3: {t:0, c:0}, 4: {t:0, c:0}, 5: {t:0, c:0} };
     fishMaster.forEach(f => {
+        if (userNotToLearn.includes(f.id)) return;
         if (f.popularity >= 1 && f.popularity <= 5) {
             popStats[f.popularity].t++;
             if (userCorrects.includes(f.id)) popStats[f.popularity].c++;
@@ -530,30 +645,27 @@ function showDashboardDetail() {
     });
 
     const popContainer = document.getElementById("detail-pop-stats-container");
-    popContainer.innerHTML = [1,2,3,4,5].map(stars => {
+    popContainer.innerHTML = [5,4,3,2,1].map(stars => {
         const item = popStats[stars];
-        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+        if (item.t === 0) return "";
+        const pct = Math.round((item.c / item.t) * 100);
         return `
             <div class="stat-row">
-                <div class="stat-row-meta">
-                    <span>人気度 ★${stars} の魚</span>
-                    <span class="stat-row-pct">${item.c} / ${item.t} 習得 (${pct}%)</span>
-                </div>
+                <div class="stat-row-meta"><span>人気度 ★${stars} の魚</span><span class="stat-row-pct">${item.c} / ${item.t} (${pct}%)</span></div>
                 <div class="progress-bar-container"><div class="progress-bar" style="width: ${pct}%;"></div></div>
             </div>
         `;
     }).join("");
 
-    // 2. 魚の種類（分類別）の集計データを算出
     let catStats = {};
     categoryMaster.forEach(c => { catStats[c.name] = { t: c.count, c: 0 }; });
     fishMaster.forEach(f => {
+        if (userNotToLearn.includes(f.id)) return;
         if (catStats[f.category]) {
             if (userCorrects.includes(f.id)) catStats[f.category].c++;
         }
     });
 
-    // ★【修正箇所】pctA の計算で catStats[t] になっていた部分を catStats[a].t に正しく修正
     const sortedCatNames = Object.keys(catStats).sort((a,b) => {
         const pctA = catStats[a].t > 0 ? (catStats[a].c / catStats[a].t) : 0;
         const pctB = catStats[b].t > 0 ? (catStats[b].c / catStats[b].t) : 0;
@@ -563,48 +675,28 @@ function showDashboardDetail() {
     const catContainer = document.getElementById("detail-cat-stats-container");
     catContainer.innerHTML = sortedCatNames.map(catName => {
         const item = catStats[catName];
-        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+        if (item.t === 0) return "";
+        const pct = Math.round((item.c / item.t) * 100);
         return `
             <div class="stat-row">
-                <div class="stat-row-meta">
-                    <span>${catName}</span>
-                    <span class="stat-row-pct">${item.c} / ${item.t} 習得 (${pct}%)</span>
-                </div>
-                <div class="progress-bar-container"><div class="progress-bar" style="width: ${pct}%; background: linear-gradient(90deg, #a8dadc, var(--success-color));"></div></div>
+                <div class="stat-row-meta"><span>${catName}</span><span class="stat-row-pct">${item.c} / ${item.t} (${pct}%)</span></div>
+                <div class="progress-bar-container"><div class="progress-bar" style="width: ${pct}%; background: linear-gradient(90deg, #81e6d9, var(--success-color));"></div></div>
             </div>
         `;
     }).join("");
 
-    // 3. チャレンジログの全件詳細描画
     const logFullContainer = document.getElementById("detail-log-full-container");
     if (userLogs.length === 0) {
         logFullContainer.innerHTML = `<p class="empty-log-text">まだチャレンジ履歴ログがありません。</p>`;
     } else {
         logFullContainer.innerHTML = userLogs.map(log => `
             <div class="detailed-log-card">
-                <div class="dl-header">
-                    <span>📅 ${log.date}</span>
-                    <span class="dl-type">${log.type || "クイズ"}</span>
-                </div>
-                <div class="dl-row">
-                    <span class="dl-label">正答率 (スコア):</span>
-                    <span class="dl-value" style="color:var(--success-color);">${log.correct} / ${log.total}問 (${log.accuracy || '-%'})</span>
-                </div>
-                <div class="dl-row">
-                    <span class="dl-label">総思考タイム:</span>
-                    <span class="dl-value">${log.time}</span>
-                </div>
-                <div class="dl-row">
-                    <span class="dl-label">スコアレート:</span>
-                    <span class="dl-value" style="color:var(--primary-color);">⚡ ${log.rate}問 / 10秒</span>
-                </div>
-                <div class="dl-row">
-                    <span class="dl-label">未正解のみモード:</span>
-                    <span class="dl-value">${log.unansweredOnly || "OFF"}</span>
-                </div>
-                <div class="dl-range">
-                    ${log.rangeScope ? log.rangeScope.replace(/\n/g, '<br>') : "範囲: 全魚種"}
-                </div>
+                <div class="dl-header"><span>📅 ${log.date}</span><span class="dl-type">${log.type || "クイズ"}</span></div>
+                <div class="dl-row"><span class="dl-label">正答率:</span><span class="dl-value" style="color:var(--success-color);">${log.correct}/${log.total}問 (${log.accuracy})</span></div>
+                <div class="dl-row"><span class="dl-label">思考タイム:</span><span class="dl-value">${log.time}</span></div>
+                <div class="dl-row"><span class="dl-label">レート:</span><span class="dl-value" style="color:var(--primary-color);">⚡ ${log.rate}問 / 10秒</span></div>
+                <div class="dl-row"><span class="dl-label">未正解のみ:</span><span class="dl-value">${log.unansweredOnly}</span></div>
+                <div class="dl-range">${log.rangeScope ? log.rangeScope.replace(/\n/g, '<br>') : "範囲: 全魚種"}</div>
             </div>
         `).join("");
     }
@@ -612,7 +704,77 @@ function showDashboardDetail() {
     navigateTo("db-detail-screen");
 }
 
-// --- 9. イベントリスナーの一括登録 ---
+// --- 10. ★新規追加：魚図鑑・検索画面の制御 ---
+function initSearchScreen() {
+    const catSelect = document.getElementById("search-category-select");
+    let options = `<option value="all">すべての分類</option>`;
+    categoryMaster.forEach(c => { options += `<option value="${c.name}">${c.name} (${c.count})</option>`; });
+    catSelect.innerHTML = options;
+
+    renderSearchResults();
+    navigateTo("search-screen");
+}
+
+function renderSearchResults() {
+    const keyword = document.getElementById("search-keyword-input").value.trim().toLowerCase();
+    const selectedCat = document.getElementById("search-category-select").value;
+    const selectedPop = document.getElementById("search-popularity-select").value;
+
+    const results = fishMaster.filter(f => {
+        if (userNotToLearn.includes(f.id)) return false;
+
+        let match = true;
+        if (keyword) {
+            const isNameMatch = f.name && f.name.toLowerCase().includes(keyword);
+            const isEngMatch = f.english && f.english.toLowerCase().includes(keyword);
+            const isDescMatch = f.description && f.description.toLowerCase().includes(keyword);
+            if (!isNameMatch && !isEngMatch && !isDescMatch) match = false;
+        }
+        if (selectedCat !== "all" && f.category !== selectedCat) match = false;
+        if (selectedPop !== "all" && String(f.popularity) !== selectedPop) match = false;
+        
+        return match;
+    });
+
+    document.getElementById("search-count-display").textContent = results.length;
+    const container = document.getElementById("search-results-container");
+
+    if (results.length === 0) {
+        container.innerHTML = `<p class="empty-log-text" style="padding:40px 0;">条件に合致する魚が見つかりません。</p>`;
+        return;
+    }
+
+    container.innerHTML = results.map(fish => {
+        const isFav = userFavorites.includes(fish.id);
+        const isCorrect = userCorrects.includes(fish.id);
+        return `
+            <div class="fish-detail-card" id="search-card-${fish.id}">
+                <img src="${getDisplayImageForList(fish)}" class="fish-card-img">
+                <div class="fish-card-body">
+                    <div class="fish-card-header">
+                        <h3>${fish.name} ${isCorrect ? '<span style="font-size:0.8rem; color:var(--success-color);">⭕</span>' : ''}</h3> 
+                        <span class="fish-card-badge">${fish.category}</span>
+                    </div>
+                    <p class="fish-card-english">${fish.english || '英名なし'} / ★${fish.popularity || 0}</p>
+                    <p class="fish-card-desc">${(fish.description || '').replace(/\n/g, '<br>')}</p>
+                    <div class="fish-card-actions">
+                        <button class="btn btn-sm btn-outline" style="border:none;" onclick="toggleFavorite('${fish.id}', this)">${isFav ? '⭐解除' : '☆保存'}</button>
+                        <button class="btn btn-sm btn-outline" style="border:none; color:var(--text-muted);" onclick="addNotToLearnFromSearch('${fish.id}', this)">🙈覚えない</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function addNotToLearnFromSearch(fishId, btnElement) {
+    if (!userNotToLearn.includes(fishId)) userNotToLearn.push(fishId);
+    updateStorage();
+    document.getElementById(`search-card-${fishId}`).remove();
+    renderSearchResults(); // カウント更新のため再描画
+}
+
+// --- 11. イベントリスナーの一括登録 ---
 function setupEventListeners() {
     document.getElementById("login-btn").addEventListener("click", handleLogin);
     
@@ -638,7 +800,7 @@ function setupEventListeners() {
     document.getElementById("quiz-quit-btn").addEventListener("click", () => {
         if (quizHistory.length === 0) { backToSetupHandler(); } 
         else {
-            if (confirm("クイズを中断しますか？\n（『OK』でここまでのリザルトを表示します。'キャンセル'で設定に戻ります）")) { showResult(); } 
+            if (confirm("クイズを中断しますか？\n（『OK』でここまでのリザルトを表示します）")) { showResult(); } 
             else { backToSetupHandler(); }
         }
     });
@@ -649,6 +811,7 @@ function setupEventListeners() {
     document.getElementById("nav-wrong-btn").addEventListener("click", () => showListScreen("wrong"));
     document.getElementById("nav-correct-btn").addEventListener("click", () => showListScreen("correct"));
     document.getElementById("nav-not-learn-btn").addEventListener("click", () => showListScreen("not_learn"));
+    document.getElementById("nav-search-btn").addEventListener("click", initSearchScreen);
     
     document.getElementById("open-db-detail-btn").addEventListener("click", showDashboardDetail);
     document.getElementById("back-from-db-detail-btn").addEventListener("click", () => {
@@ -666,6 +829,19 @@ function setupEventListeners() {
         updateDashboard();
         navigateTo("setup-screen");
     });
+
+    document.getElementById("back-from-search-btn").addEventListener("click", () => {
+        const activeTab = document.querySelector(".tab-btn.active").id;
+        const sortKey = activeTab.includes("count") ? "count_rank" : activeTab.includes("pop") ? "pop_rank" : "abc";
+        renderCategories(sortKey, false);
+        updateDashboard();
+        navigateTo("setup-screen");
+    });
+
+    // 検索画面のリアルタイムイベント
+    document.getElementById("search-keyword-input").addEventListener("input", renderSearchResults);
+    document.getElementById("search-category-select").addEventListener("change", renderSearchResults);
+    document.getElementById("search-popularity-select").addEventListener("change", renderSearchResults);
 }
 
 function switchTab(activeTabBtn) {
