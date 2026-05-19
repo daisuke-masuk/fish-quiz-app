@@ -473,14 +473,12 @@ function showResult() {
     const logDateStr = `${(now.getMonth()+1)}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
     
     const newLogItem = {
-       const newLogItem = {
-         date: logDateStr,
-         total: totalPlayed,
-         correct: currentScore,
-         accuracy: `${percent}%`,
-         choiceCount: currentQuizSettings.choiceCount, // ★追加
-         time: `${seconds}秒`,
-         rate: speedRate,
+        date: logDateStr,
+        total: totalPlayed,
+        correct: currentScore,
+        accuracy: `${percent}%`,
+        time: `${seconds}秒`,
+        rate: speedRate,
         type: `${currentQuizSettings.type} [${currentQuizSettings.difficulty}]`,
         unansweredOnly: currentQuizSettings.unansweredOnly || "OFF",
         rangeScope: `【種類】${currentQuizSettings.categories.join('/')} \n【人気】${currentQuizSettings.popularity.join(',')}`
@@ -702,7 +700,6 @@ function showDashboardDetail() {
             <div class="detailed-log-card">
                 <div class="dl-header"><span>📅 ${log.date}</span><span class="dl-type">${log.type || "クイズ"}</span></div>
                 <div class="dl-row"><span class="dl-label">正答率:</span><span class="dl-value" style="color:var(--success-color);">${log.correct}/${log.total}問 (${log.accuracy})</span></div>
-                <div class="dl-row"><span class="dl-label">出題数/選択肢:</span><span class="dl-value">${log.total}問 / ${log.choiceCount}</span></div>
                 <div class="dl-row"><span class="dl-label">思考タイム:</span><span class="dl-value">${log.time}</span></div>
                 <div class="dl-row"><span class="dl-label">レート:</span><span class="dl-value" style="color:var(--primary-color);">⚡ ${log.rate}問 / 10秒</span></div>
                 <div class="dl-row"><span class="dl-label">未正解のみ:</span><span class="dl-value">${log.unansweredOnly}</span></div>
