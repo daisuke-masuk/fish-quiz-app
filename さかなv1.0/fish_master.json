@@ -14551,5 +14551,27 @@
     "category": "アゴアマダイ科",
     "description": "全長：6cm\n生息：海底に垂直の穴を掘って住んでいる\n分布：和歌山県以南、グレードバリアリーフ、紅海に分布\nレア度：★★★★☆\n人気：★★★★☆\n撮り易さ：★★★☆☆",
     "popularity": 4
+  },
+  {
+    "name": "ザトウクジラ",
+    "english": "Humpback whale",
+    "category": "クジラ偶蹄目",
+    "description": "全長：1300〜1600cm\n生息：プランクトンや小魚を捕食し、ダイナミックなブリーチングや複雑な歌で知られる大型クジラ。\n分布：世界中の海洋\nレア度：★★★☆☆\n人気：★★★★★\n撮り易さ：★★☆☆☆",
+    "popularity": 5,
+    "id": "fish_1324",
+    "image": "zatoukujira1.jpg",
+    "image2": "zatoukujira2.jpg",
+    "image3": "欠損"
+  },
+  {
+    "name": "セミクジラ",
+    "english": "North Pacific Right Whale",
+    "category": "クジラ偶蹄目",
+    "description": "全長：約1500〜1800cm\n生息：プランクトンを濾し取って食べるヒゲクジラの一種。\n分布：北太平洋\nレア度：★★★★★\n人気：★★★★☆\n撮り易さ：★☆☆☆☆",
+    "popularity": 4,
+    "id": "fish_1325",
+    "image": "semikujira1.jpg",
+    "image2": "semikujira2.jpg",
+    "image3": "semikujira3.jpg"
   }
 ]
