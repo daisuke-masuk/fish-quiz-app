@@ -14573,5 +14573,82 @@
     "image": "semikujira1.jpg",
     "image2": "semikujira2.jpg",
     "image3": "semikujira3.jpg"
+  },
+  {
+    "name": "シロナガスクジラ",
+    "english": "Blue Whale",
+    "category": "クジラ偶蹄目",
+    "description": "全長：約2500〜3000cm\n生息：地球上で最大の動物。オキアミを大量に捕食する。\n分布：全世界の海洋\nレア度：★★★★★\n人気：★★★★★\n撮り易さ：★☆☆☆☆",
+    "popularity": 5,
+    "id": "fish_1326",
+    "image": "shironagasukujira1.jpg",
+    "image2": "shironagasukujira2.jpg",
+    "image3": "欠損"
+  },
+  {
+    "name": "シャチ",
+    "english": "Killer Whale",
+    "category": "クジラ偶蹄目",
+    "description": "全長：約600〜800cm\n生息：高度な社会性を持つ海の王者。魚や哺乳類を狩る。\n分布：全世界の海洋\nレア度：★★★★☆\n人気：★★★★★\n撮り易さ：★★☆☆☆",
+    "popularity": 5,
+    "id": "fish_1327",
+    "image": "shachi1.jpg",
+    "image2": "shachi2.jpg",
+    "image3": "欠損"
+  },
+  {
+    "name": "バンドウイルカ",
+    "english": "Common Bottlenose Dolphin",
+    "category": "クジラ偶蹄目",
+    "description": "全長：約250〜300cm\n生息：人懐っこく、水族館でも人気。群れで行動する。\n分布：温帯から熱帯の海洋\nレア度：★☆☆☆☆\n人気：★★★★★\n撮り易さ：★★★★☆",
+    "popularity": 5,
+    "id": "fish_1328",
+    "image": "bandouiruka1.jpg",
+    "image2": "bandouiruka2.jpg",
+    "image3": "欠損"
+  },
+  {
+    "name": "イッカク",
+    "english": "Narwhal",
+    "category": "クジラ偶蹄目",
+    "description": "全長：約400〜500cm\n生息：オス特有の長い牙を持つ「海のユニコーン」。\n分布：北極海\nレア度：★★★★★\n人気：★★★★☆\n撮り易さ：★☆☆☆☆",
+    "popularity": 4,
+    "id": "fish_1329",
+    "image": "ikkaku1.jpg",
+    "image2": "ikkaku2.jpg",
+    "image3": "欠損"
+  },
+  {
+    "name": "シロイルカ",
+    "english": "Beluga Whale",
+    "category": "クジラ偶蹄目",
+    "description": "全長：約300〜500cm\n生息：真っ白な体が特徴で、「海のカナリア」とも呼ばれる。\n分布：北極海周辺\nレア度：★★★★☆\n人気：★★★★★\n撮り易さ：★★☆☆☆",
+    "popularity": 5,
+    "id": "fish_1330",
+    "image": "shiroiruka1.jpg",
+    "image2": "shiroiruka2.jpg",
+    "image3": "欠損"
+  },
+  {
+    "name": "ニタリ",
+    "english": "Pelagic Thresher",
+    "category": "その他",
+    "description": "全長：約300〜400cm\n生息：非常に長い尾ビレを使って小魚を叩いて気絶させ、捕食するサメ。\n分布：熱帯から温帯の海洋\nレア度：★★★★☆\n人気：★★★☆☆\n撮り易さ：★★☆☆☆",
+    "popularity": 3,
+    "id": "fish_1331",
+    "image": "nitari1.jpg",
+    "image2": "nitari2.jpg",
+    "image3": "欠損"
+  },
+  {
+    "name": "オオセ",
+    "english": "Japanese Wobbegong",
+    "category": "サメ",
+    "description": "全長：約100〜120cm\n生息：海底に潜み、海藻や岩に擬態して獲物を待ち伏せするサメ。\n分布：西太平洋（日本沿岸など）\nレア度：★★★☆☆\n人気：★★★☆☆\n撮り易さ：★★★★☆",
+    "popularity": 3,
+    "id": "fish_1332",
+    "image": "oose1.jpg",
+    "image2": "oose2.jpg",
+    "image3": "欠損"
   }
 ]
