@@ -589,7 +589,8 @@ function showListScreen(type) {
                     <p class="fish-card-desc">${(fish.description || '解説はありません。').replace(/\n/g, '<br>')}</p>
                     <div class="fish-card-actions">
                         ${actionButtons}
-                        <button class="btn btn-sm btn-outline" style="border:none;" onclick="handleListFavToggle('${fish.id}', this, '${type}')">${isFav ? '⭐解除' : '☆保存'}</button>
+                        <button class="btn-fav ${isFav ? 'active' : ''}" onclick="handleListFavToggle('${fish.id}', this, '${type}')">${isFav ? '★' : '☆'}</button>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -627,8 +628,14 @@ function checkListEmpty() {
 function handleListFavToggle(fishId, btnElement, currentScreenType) {
     toggleFavorite(fishId, null);
     const isNowFav = userFavorites.includes(fishId);
-    if (currentScreenType === "fav") { document.getElementById(`card-${fishId}`).remove(); checkListEmpty(); } 
-    else { btnElement.textContent = isNowFav ? "⭐解除" : "☆保存"; }
+    if (currentScreenType === "fav") { 
+        document.getElementById(`card-${fishId}`).remove(); 
+        checkListEmpty(); 
+    } else { 
+        // テキストではなく、★とクラスを切り替える
+        btnElement.className = isNowFav ? "btn-fav active" : "btn-fav"; 
+        btnElement.textContent = isNowFav ? "★" : "☆"; 
+    }
 }
 
 // --- 9. ダッシュボード詳細統計画面の描画 ---
@@ -756,10 +763,10 @@ function renderSearchResults() {
                         <span class="fish-card-badge">${fish.category}</span>
                     </div>
                     <p class="fish-card-english">${fish.english || '英名なし'} / ★${fish.popularity || 0}</p>
-                    <p class="fish-card-desc">${(fish.description || '').replace(/\n/g, '<br>')}</p>
+                   <p class="fish-card-desc">${(fish.description || '').replace(/\n/g, '<br>')}</p>
                     <div class="fish-card-actions">
-                        <button class="btn btn-sm btn-outline" style="border:none;" onclick="toggleFavorite('${fish.id}', this)">${isFav ? '⭐解除' : '☆保存'}</button>
-                        <button class="btn btn-sm btn-outline" style="border:none; color:var(--text-muted);" onclick="addNotToLearnFromSearch('${fish.id}', this)">🙈覚えない</button>
+                        <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${fish.id}', this)">${isFav ? '★' : '☆'}</button>
+                        <button class="btn-not-learn" style="font-size:1.4rem; padding:2px;" onclick="addNotToLearnFromSearch('${fish.id}', this)">🙈</button>
                     </div>
                 </div>
             </div>
