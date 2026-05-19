@@ -27,6 +27,7 @@
             <div class="header-bar">
                 <span class="user-display">ID: <strong id="current-user-id">---</strong></span>
                 <div class="nav-buttons">
+                    <button class="btn btn-sm btn-nav-main" id="nav-search-btn">🔍 魚図鑑</button>
                     <button class="btn btn-sm" id="nav-fav-btn">⭐ お気に入り</button>
                     <button class="btn btn-sm" id="nav-wrong-btn">❌ 間違えた魚</button>
                     <button class="btn btn-sm" id="nav-correct-btn">📁 正解リスト</button>
@@ -79,7 +80,23 @@
                     </label>
                 </div>
 
-                <h3>2. 出題設定</h3>
+                <h3>2. 難易度（誤答の抽出範囲）</h3>
+                <div class="radio-tile-group sub-group">
+                    <label class="radio-tile-label">
+                        <input type="radio" name="quiz-difficulty" value="easy" checked>
+                        <div class="radio-tile tile-sm">
+                            <span>🌱 EASY (全体からランダム)</span>
+                        </div>
+                    </label>
+                    <label class="radio-tile-label">
+                        <input type="radio" name="quiz-difficulty" value="hard">
+                        <div class="radio-tile tile-sm">
+                            <span>🔥 HARD (同じ分類科から優先)</span>
+                        </div>
+                    </label>
+                </div>
+
+                <h3>3. 出題設定</h3>
                 <div class="setup-row">
                     <div class="select-wrapper">
                         <label class="select-label">選択肢の数</label>
@@ -88,6 +105,7 @@
                             <option value="3">3択</option>
                             <option value="4" selected>4択</option>
                             <option value="5">5択</option>
+                            <option value="6">6択</option>
                         </select>
                     </div>
                     <div class="select-wrapper">
@@ -103,7 +121,7 @@
             </div>
 
             <div class="card card-margin">
-                <h3>3. 人気度での絞り込み（複数選択可）</h3>
+                <h3>4. 人気度での絞り込み（複数選択可）</h3>
                 <div class="popularity-filter-group">
                     <label class="pop-check-item"><input type="checkbox" name="popularity-filter" value="1">★1</label>
                     <label class="pop-check-item"><input type="checkbox" name="popularity-filter" value="2">★2</label>
@@ -115,7 +133,7 @@
 
             <div class="card">
                 <div class="category-header-row">
-                    <h3>4. 出題する魚の種類</h3>
+                    <h3>5. 出題する魚の種類</h3>
                     <label class="switch-label">
                         <input type="checkbox" id="unanswered-only-switch"> 未正解のみ出題
                     </label>
@@ -165,16 +183,32 @@
             <div id="quiz-choices-container" class="choices-grid"></div>
 
             <div id="quiz-feedback-container" class="card feedback-card" style="display: none;">
-                <div class="feedback-result">
-                    <span id="feedback-icon">⭕</span>
-                    <h3 id="feedback-text">正解！</h3>
+                <div class="feedback-top-row">
+                    <div class="feedback-result">
+                        <span id="feedback-icon">⭕</span>
+                        <h3 id="feedback-text">正解！</h3>
+                    </div>
+                    <div class="feedback-action-buttons">
+                        <label class="no-confidence-label" id="feedback-confidence-wrapper">
+                            <input type="checkbox" id="feedback-confidence-check"> 🤔 自信なし
+                        </label>
+                        <button class="btn-fav" id="feedback-fav-btn" title="お気に入り">☆</button>
+                        <button class="btn-not-learn" id="feedback-not-learn-btn" title="今後登場させない">🙈</button>
+                    </div>
                 </div>
+
                 <div class="feedback-detail">
                     <h4 id="feedback-fish-name">魚の名前</h4>
                     <p id="feedback-fish-english">英名</p>
-                    <p id="feedback-fish-desc">解説テキスト</p>
+                    <p id="feedback-fish-desc" class="formatted-desc">解説テキスト</p>
                 </div>
-                <button id="next-question-btn" class="btn btn-primary">次の問題へ</button>
+
+                <div id="feedback-wrong-choices-wrapper" style="display: none; margin-top: 12px;">
+                    <h5 class="sub-title-sm">他の選択肢の魚たち:</h5>
+                    <div id="feedback-wrong-choices-container" class="wrong-images-mini-grid"></div>
+                </div>
+
+                <button id="next-question-btn" class="btn btn-primary" style="margin-top: 16px;">次の問題へ</button>
             </div>
         </section>
 
@@ -241,7 +275,44 @@
             </div>
         </section>
 
-    </div>
-    <script src="app.js"></script>
-</body>
+        <section id="search-screen" class="screen">
+            <div class="list-header">
+                <button id="back-from-search-btn" class="btn btn-sm btn-outline">⬅ 戻る</button>
+                <h2>🔍 魚図鑑・検索</h2>
+                <div style="width: 58px;"></div>
+            </div>
+
+            <div class="card card-margin">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <input type="text" id="search-keyword-input" placeholder="魚の名前やキーワードで検索..." autocomplete="off" style="min-height: 40px; margin-bottom: 0;">
+                </div>
+                
+                <div class="setup-row">
+                    <div class="select-wrapper">
+                        <label class="select-label">魚の種類（分類）</label>
+                        <select id="search-category-select">
+                            <option value="all">すべての分類</option>
+                        </select>
+                    </div>
+                    <div class="select-wrapper">
+                        <label class="select-label">人気度</label>
+                        <select id="search-popularity-select">
+                            <option value="all">すべての人気度</option>
+                            <option value="1">★1</option>
+                            <option value="2">★2</option>
+                            <option value="3">★3</option>
+                            <option value="4">★4</option>
+                            <option value="5">★5</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 8px; font-size: 0.8rem; color: #6c757d;">
+                    該当件数: <strong id="search-count-display" style="color: var(--primary-color);">0</strong> 件
+                </div>
+            </div>
+
+            <div id="search-results-container" class="fish-card-list"></div>
+        </section>
+
+    </div></body>
 </html>
