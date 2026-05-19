@@ -136,11 +136,24 @@ h3 {
 .log-stats { font-weight: 600; color: var(--text-color); }
 .log-rate { color: var(--primary-light); font-weight: 700; background: var(--primary-pale); padding: 2px 6px; border-radius: 4px; }
 
-/* 人気度フィルター星グループ */
-.popularity-filter-group { display: flex; justify-content: space-between; gap: 6px; }
-.pop-check-item { flex: 1; display: inline-flex; align-items: center; justify-content: center; background: #edf2f7; padding: 10px 4px; border-radius: var(--radius-md); cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--text-color); transition: background 0.2s, color 0.2s; min-height: 40px; }
-.pop-check-item input { margin-right: 4px; width: 14px; height: 14px; accent-color: var(--primary-light); }
-.pop-check-item:has(input:checked) { background-color: var(--primary-pale); color: var(--primary-light); border: 1px solid rgba(66, 153, 225, 0.3); }
+/* --- 人気度フィルター星グループ --- */
+.popularity-filter-group { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.pop-check-item { flex: 1; min-width: 60px; display: inline-flex; align-items: center; justify-content: center; background: #fff; padding: 10px 4px; border-radius: 20px; cursor: pointer; font-size: 0.95rem; font-weight: 800; color: var(--text-muted); border: 2px solid var(--border-color); transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.pop-check-item input { display: none; } /* 四角いチェックを隠す */
+.pop-check-item:has(input:checked) { background-color: #fff9db; border-color: #ffb703; color: #d97706; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255, 183, 3, 0.2); }
+
+/* --- 分類選択セクション（スタイリッシュなタグ型に変更） --- */
+.selection-control { display: flex; gap: 8px; margin-bottom: 14px; }
+/* グリッドを廃止し、タグが綺麗に折り返されるフレックスボックスに変更 */
+.category-grid { display: flex; flex-wrap: wrap; gap: 10px; max-height: 220px; overflow-y: auto; padding: 6px; border: none; background: transparent; }
+.checkbox-item { display: inline-flex; align-items: center; justify-content: center; background: #fff; padding: 10px 16px; border-radius: 30px; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); border: 2px solid var(--border-color); transition: all 0.2s; box-shadow: var(--shadow-sm); margin: 0; }
+.checkbox-item input { display: none; } /* 四角いチェックを隠す */
+.checkbox-item .checkbox-text small { color: inherit; opacity: 0.7; margin-left: 4px; }
+.checkbox-item:has(input:checked) { background-color: var(--primary-pale); border-color: var(--primary-light); color: var(--primary-light); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(43, 108, 176, 0.15); }
+
+/* お気に入り・間違えた問題の特別ボタン */
+.checkbox-item.special-category { border-style: dashed; }
+.checkbox-item.special-category:has(input:checked) { border-style: solid; background-color: #fff9db; border-color: #ffb703; color: #d97706; box-shadow: 0 4px 10px rgba(255, 183, 3, 0.2); }
 
 /* --- ボタン基本スタイル --- */
 .btn {
