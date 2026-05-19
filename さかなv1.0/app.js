@@ -1,5 +1,4 @@
 // --- アプリのグローバル状態（ステート） ---
-let isSelectAllMode = false; // 全選択モードのフラグ
 let fishMaster = [];       // 魚マスタ（これ一本に統合）
 let categoryMaster = [];   // JS側で自動生成する分類マスタ
 
@@ -42,25 +41,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // --- 各種ヘルパー ---
-
-function toggleSelectAll() {
-    isSelectAllMode = !isSelectAllMode;
-    const btn = document.getElementById("select-all-big-btn");
-    const container = document.getElementById("category-list-container");
-
-    if (isSelectAllMode) {
-        btn.classList.add("active");
-        btn.textContent = "✅ すべての分類を選択中（範囲指定なし）";
-        container.style.opacity = "0.4";
-        container.style.pointerEvents = "none"; // グレーアウト＆クリック不可
-    } else {
-        btn.classList.remove("active");
-        btn.textContent = "✅ すべての分類を選択（範囲指定なし）";
-        container.style.opacity = "1";
-        container.style.pointerEvents = "auto";
-    }
-}
-
 function getValidImages(fish) {
     const validPaths = [];
     if (fish.image && fish.image !== "欠損") validPaths.push(`downloaded_images/${fish.image}`);
@@ -275,32 +255,6 @@ function startQuiz() {
 
     const isUnansweredOnly = document.getElementById("unanswered-only-switch").checked;
     
-    function startQuiz() {
-    // ... 前略 ...
-    const isUnansweredOnly = document.getElementById("unanswered-only-switch").checked;
-    
-
-    let selectedCats = [];
-    if (isSelectAllMode) {
-        selectedCats = ["__ALL__"]; // 全対象フラグ
-    } else {
-        selectedCats = Array.from(document.querySelectorAll("input[name='category']:checked")).map(el => el.value);
-    }
-    
-    if (selectedCats.length === 0) { alert("出題するお魚の種類を選択するか、すべて選択ボタンを押してください。"); return; }
-
-    let poolMap = new Map();
-    if (isSelectAllMode) {
-        fishMaster.forEach(f => poolMap.set(f.id, f));
-    } else {
-        selectedCats.forEach(cat => {
-            if (cat === "__FAVORITES__") { fishMaster.forEach(f => { if (userFavorites.includes(f.id)) poolMap.set(f.id, f); }); }
-            else if (cat === "__WRONGS__") { fishMaster.forEach(f => { if (userWrongs.includes(f.id)) poolMap.set(f.id, f); }); }
-            else { fishMaster.forEach(f => { if (f.category === cat) poolMap.set(f.id, f); }); }
-        });
-    }
-
-
     currentQuizPool = Array.from(poolMap.values()).filter(fish => {
         if (userNotToLearn.includes(fish.id)) return false;
         if (isUnansweredOnly && userCorrects.includes(fish.id)) return false;
@@ -318,8 +272,6 @@ function startQuiz() {
     currentQuizSettings = {
         type: quizType === "photo-to-name" ? "📷 写真➔名前" : "📝 名前➔写真",
         difficulty: difficulty.toUpperCase(),
-        choiceCount: `${selectedChoicesCount}択`,
-        categories: isSelectAllMode ? ["すべて"] : selectedCats.map(c => c === '__FAVORITES__' ? '⭐お気に入り' : c === '__WRONGS__' ? '❌間違えた' : c),
         categories: selectedCats.map(c => c === '__FAVORITES__' ? '⭐お気に入り' : c === '__WRONGS__' ? '❌間違えた' : c),
         popularity: selectedPops.length > 0 ? selectedPops.map(p => `★${p}`) : ["全対象"],
         unansweredOnly: isUnansweredOnly ? "ON" : "OFF"
@@ -835,7 +787,7 @@ function addNotToLearnFromSearch(fishId, btnElement) {
 // --- 11. イベントリスナーの一括登録 ---
 function setupEventListeners() {
     document.getElementById("login-btn").addEventListener("click", handleLogin);
-    document.getElementById("select-all-big-btn").addEventListener("click", toggleSelectAll);
+    
     document.getElementById("sort-count-btn").addEventListener("click", (e) => { switchTab(e.target); renderCategories("count_rank"); });
     document.getElementById("sort-pop-btn").addEventListener("click", (e) => { switchTab(e.target); renderCategories("pop_rank"); });
     document.getElementById("sort-abc-btn").addEventListener("click", (e) => { switchTab(e.target); renderCategories("abc"); });
