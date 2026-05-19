@@ -365,6 +365,15 @@ h3 {
 .dl-value { font-weight: 700; color: var(--text-color); }
 .dl-range { font-size: 0.75rem; color: #4a5568; background: #fff; padding: 6px 8px; border-radius: 6px; border: 1px dashed #cbd5e0; margin-top: 3px; line-height: 1.35; word-break: break-all; font-weight: 500; }
 
+
+/* 全選択ボタンがONの時のスタイル */
+#select-all-big-btn.active {
+    background: var(--success-color);
+    border-color: var(--success-dark);
+    box-shadow: 0 4px 15px rgba(46, 229, 157, 0.4);
+    color: #fff;
+}
+
 /* 魚図鑑ページヒット件数バッジ */
 #search-count-display { font-size: 1rem; font-weight: 800; }
 
